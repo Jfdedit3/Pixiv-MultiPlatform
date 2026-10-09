@@ -1,0 +1,50 @@
+name: Patch SettingScreen
+on:
+  workflow_dispatch:
+    inputs:
+      b64_part1:
+        description: base64 part 1
+        required: true
+      b64_part2:
+        description: base64 part 2
+        required: true
+      b64_part3:
+        description: base64 part 3
+        required: true
+      b64_part4:
+        description: base64 part 4
+        required: true
+      b64_part5:
+        description: base64 part 5
+        required: false
+        default: ""
+      b64_part6:
+        description: base64 part 6
+        required: false
+        default: ""
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: desktop-windows-ui-rework
+      - name: Write file
+        env:
+          P1: ${{ inputs.b64_part1 }}
+          P2: ${{ inputs.b64_part2 }}
+          P3: ${{ inputs.b64_part3 }}
+          P4: ${{ inputs.b64_part4 }}
+          P5: ${{ inputs.b64_part5 }}
+          P6: ${{ inputs.b64_part6 }}
+        run: |
+          printf '%s%s%s%s%s%s' "$P1" "$P2" "$P3" "$P4" "$P5" "$P6" | base64 -d > composeApp/src/commonMain/kotlin/top/kagg886/pmf/ui/route/main/setting/SettingScreen.kt
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add composeApp/src/commonMain/kotlin/top/kagg886/pmf/ui/route/main/setting/SettingScreen.kt
+          git commit -m "feat(settings): restore SettingScreen with visible refresh token field" || exit 0
+          git push
